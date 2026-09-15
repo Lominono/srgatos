@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta name="theme-color" content="#000000">
+  <title>SARAY</title>
+  <link rel="icon" type="image/png" href="/images/gato.png">
+</head>
+<body>
+  <!-- Fullscreen Cinematic Intro (Zero video-player chrome, pure full-bleed cinema) -->
+  <div id="video-overlay">
+    <div class="video-container">
+      <video id="intro-video" playsinline preload="auto">
+        <source src="/video/videoplayback.mp4" type="video/mp4">
+      </video>
+
+      <!-- Refined Editorial Entrance Gate -->
+      <div id="video-gate" class="video-gate">
+        <div id="welcome-sequence" class="welcome-sequence">
+          <h1 class="welcome-hero-name">SARAY</h1>
+          <p class="welcome-hero-sub">how's your knee</p>
+        </div>
+
+        <div class="epic-trigger-wrap">
+          <div class="epic-trigger-ring epic-trigger-ring-outer"></div>
+          <div class="epic-trigger-ring epic-trigger-ring-inner"></div>
+          <button id="start-experience-btn" class="epic-trigger-btn" aria-label="Iniciar experiencia">
+            <span class="trigger-play-icon">▶</span>
+            <span class="trigger-label">ENTRAR</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Discreet skip dot -->
+      <button id="dismiss-intro-btn" class="discreet-dismiss-btn" aria-label="Cerrar introducción">✕</button>
+    </div>
+  </div>
+
+  <!-- Main Experience -->
+  <main id="main-app">
+    <!-- Header: Simply SARAY -->
+    <header class="saray-hero">
+      <h1 class="saray-title">SARAY</h1>
+      <p class="saray-sub">how's your knee</p>
+    </header>
+
+    <!-- Centerpiece: The Meowl -->
+    <section class="meowl-container">
+      <div class="meowl-stage" id="meowl-stage" title="Desliza o toca al gato">
+        <div class="meowl-ambient-aura" id="meowl-ambient-aura"></div>
+        <div class="meowl-wrapper" id="meowl-wrapper">
+          <img src="/images/gato.png" alt="Gato Búho" class="meowl-avatar">
+        </div>
+      </div>
+
+      <!-- Action buttons -->
+      <div class="meowl-actions">
+        <button class="action-pill" id="btn-spin-neck" aria-label="Girar cuello 360 grados">
+          Girar cuello 360°
+        </button>
+        <button class="action-pill action-pill-flappy" id="btn-open-flappy" aria-label="Jugar Flappy Meowl">
+          🎮 Flappy Meowl
+        </button>
+        <button class="action-pill" id="btn-hows-knee" aria-label="How's your knee">
+          How's your knee?
+        </button>
+      </div>
+
+      <!-- 360 Experience Launch Button -->
+      <button class="action-pill-featured" id="btn-open-360" aria-label="Buscar Meowl en 360 grados">
+        <span>🌐</span>
+        <span>Buscar al Meowl en 360°</span>
+      </button>
+    </section>
+
+    <!-- Clean Audio Dock with Scrubber & Apple Music Lyric Pop -->
+    <section class="player-dock" id="player-dock">
+      <div class="player-main-row">
+        <div class="player-artwork">
+          <img src="/images/gato.png" alt="Audio thumbnail">
+        </div>
+        <div class="player-meta">
+          <div class="player-track-name">How's Your Knee (好想你)</div>
+          <div class="player-artist-name">Joyce Chu</div>
+        </div>
+        <div class="player-waveform" id="player-waveform">
+          <span class="wave-bar"></span>
+          <span class="wave-bar"></span>
+          <span class="wave-bar"></span>
+          <span class="wave-bar"></span>
+        </div>
+        <button class="player-play-btn" id="player-play-btn" aria-label="Reproducir o pausar">
+          <span id="player-play-icon" style="font-size: 15px; margin-left: 2px;">▶</span>
+        </button>
+      </div>
+
+      <!-- Interactive Progress Scrubber -->
+      <div class="player-progress-row">
+        <span class="player-time" id="player-time-current">0:00</span>
+        <div class="player-progress-track" id="player-progress-track" title="Toca para saltar">
+          <div class="player-progress-fill" id="player-progress-fill"></div>
+        </div>
+        <span class="player-time" id="player-time-total">2:38</span>
+      </div>
+
+      <!-- Synchronized Lyric Line -->
+      <div class="player-lyric-box">
+        <div class="player-lyric-line" id="player-lyric-line">
+          🎶 [Ukulele Intro] — Get ready for Saray...
+        </div>
+      </div>
+    </section>
+
+    <!-- Minimal Editorial Footer -->
+    <footer class="editorial-footer">
+      Saray • 2026
+    </footer>
+  </main>
+
+  <!-- Flappy Meowl Mini-Game Modal -->
+  <div id="flappy-modal" class="flappy-modal" style="display: none;">
+    <div class="flappy-card">
+      <div class="flappy-header">
+        <div class="flappy-title-box">
+          <span class="flappy-game-tag">ARCADE</span>
+          <h2 class="flappy-game-title">FLAPPY MEOWL</h2>
+        </div>
+        <button class="flappy-close-btn" id="btn-close-flappy" aria-label="Cerrar juego">✕</button>
+      </div>
+      <div id="flappy-canvas-wrap" class="flappy-canvas-wrap">
+        <canvas id="flappy-canvas"></canvas>
+      </div>
+      <div class="flappy-footer-hint">Toca o pulsa espacio para aletear</div>
+    </div>
+  </div>
+
+  <!-- Fullscreen 360 Panoramic Viewer (100% Local, Zero YouTube Iframe) -->
+  <div id="meowl-360-container" class="meowl-360-overlay" style="display: none;">
+    <canvas id="meowl-360-canvas" class="meowl-360-canvas"></canvas>
+
+    <!-- 360 HUD Overlay -->
+    <div class="hud-top">
+      <div class="hud-status" id="meowl-360-status">Arrastra para buscar al Meowl en 360°</div>
+      <button class="hud-btn-close" id="btn-close-360" aria-label="Cerrar 360">✕</button>
+    </div>
+
+    <!-- Center Reticle / Crosshair -->
+    <div class="hud-crosshair">
+      <div class="crosshair-circle"></div>
+      <div class="crosshair-dot"></div>
+    </div>
+
+    <!-- Landscape Orientation Prompt for Mobile -->
+    <div id="meowl-orientation-prompt" class="meowl-orientation-prompt" style="display: none;">
+      <div class="orientation-card">
+        <div class="phone-rotate-icon">
+          <div class="phone-shape"></div>
+          <span class="phone-arrow">↺</span>
+        </div>
+        <div class="orientation-title">GIRA TU TELÉFONO</div>
+        <div class="orientation-desc">Para ver el video 360° con campo visual completo, pon tu pantalla en horizontal.</div>
+        <button id="btn-dismiss-orientation" class="orientation-dismiss-btn">Continuar en vertical</button>
+      </div>
+    </div>
+
+    <!-- 360 Bottom Controls (Removed 'lo encontré' button) -->
+    <div class="hud-bottom">
+      <div class="hud-secondary-actions">
+        <button class="hud-secondary-btn" id="btn-sound-360">Sonido: OFF</button>
+        <button class="hud-secondary-btn" id="btn-toggle-gyro">Giroscopio</button>
+        <button class="hud-secondary-btn" id="btn-play-360">Pausar</button>
+      </div>
+    </div>
+  </div>
+
+  <script type="module" src="/src/js/main.js"></script>
+</body>
+</html>
