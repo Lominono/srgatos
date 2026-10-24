@@ -1252,11 +1252,17 @@ body {
   background: #000000;
 }
 
-#flappy-canvas {
+#flappy-canvas,
+#catcher-canvas,
+#jump-canvas {
   border-radius: 14px;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
   display: block;
   touch-action: none;
+  -webkit-touch-callout: none;
+  user-select: none;
+  -webkit-user-select: none;
+  cursor: pointer;
 }
 
 .flappy-footer-hint {

@@ -34,7 +34,7 @@ export function setupMeowlCatcher() {
     targetX: 0,
     w: 64,
     h: 64,
-    speed: 0.25
+    speed: 0.38
   };
 
   // Falling Items
@@ -61,20 +61,22 @@ export function setupMeowlCatcher() {
   }
 
   function resizeCanvas() {
-    const wrap = document.getElementById('catcher-canvas-wrap');
-    if (!wrap) return;
-    const rect = wrap.getBoundingClientRect();
+    const isLandscape = window.innerWidth > window.innerHeight && window.innerHeight < 550;
+    if (isLandscape) {
+      width = Math.min(480, window.innerWidth - 48);
+      height = Math.min(300, window.innerHeight - 80);
+    } else {
+      width = Math.min(390, window.innerWidth - 32);
+      height = Math.min(520, window.innerHeight - 150);
+    }
     const dpr = Math.min(window.devicePixelRatio || 1, 2);
 
-    width = Math.floor(rect.width);
-    height = Math.floor(rect.height);
-
-    canvas.width = width * dpr;
-    canvas.height = height * dpr;
+    canvas.width = Math.floor(width * dpr);
+    canvas.height = Math.floor(height * dpr);
     canvas.style.width = `${width}px`;
     canvas.style.height = `${height}px`;
 
-    ctx.scale(dpr, dpr);
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
 
     player.y = height - player.h - 16;
     player.x = width / 2;
@@ -292,7 +294,9 @@ export function setupMeowlCatcher() {
     });
   }
 
-  // Pointer controls (1:1 finger tracking)
+  // Pointer and Touch controls (Smooth 1:1 finger tracking)
+  let isPointerActive = false;
+
   function handlePointer(clientX) {
     if (!canvas) return;
     const rect = canvas.getBoundingClientRect();
@@ -301,7 +305,8 @@ export function setupMeowlCatcher() {
 
   canvas.addEventListener('pointerdown', (e) => {
     e.preventDefault();
-    canvas.setPointerCapture(e.pointerId);
+    isPointerActive = true;
+    try { canvas.setPointerCapture(e.pointerId); } catch (_) {}
 
     if (isGameOver) {
       resetGame();
@@ -311,19 +316,48 @@ export function setupMeowlCatcher() {
   });
 
   canvas.addEventListener('pointermove', (e) => {
-    if (e.buttons > 0) {
-      handlePointer(e.clientX);
-    }
+    if (!isPointerActive && e.buttons === 0) return;
+    e.preventDefault();
+    handlePointer(e.clientX);
   });
 
   canvas.addEventListener('pointerup', (e) => {
+    isPointerActive = false;
     try { canvas.releasePointerCapture(e.pointerId); } catch (_) {}
   });
+
+  canvas.addEventListener('pointercancel', () => {
+    isPointerActive = false;
+  });
+
+  canvas.addEventListener('touchstart', (e) => {
+    e.preventDefault();
+    if (isGameOver) {
+      resetGame();
+      return;
+    }
+    if (e.touches && e.touches[0]) {
+      handlePointer(e.touches[0].clientX);
+    }
+  }, { passive: false });
+
+  canvas.addEventListener('touchmove', (e) => {
+    e.preventDefault();
+    if (e.touches && e.touches[0]) {
+      handlePointer(e.touches[0].clientX);
+    }
+  }, { passive: false });
 
   if (closeBtn) closeBtn.addEventListener('click', closeGame);
 
   window.addEventListener('resize', () => {
     if (isRunning) resizeCanvas();
+  });
+
+  window.addEventListener('orientationchange', () => {
+    setTimeout(() => {
+      if (isRunning) resizeCanvas();
+    }, 150);
   });
 
   return {

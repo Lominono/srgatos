@@ -36,7 +36,7 @@ export function setupMeowlJump() {
     vx: 0,
     vy: 0,
     targetX: 0,
-    speed: 0.22,
+    speed: 0.32,
     jumpPower: -10.5
   };
 
@@ -45,20 +45,22 @@ export function setupMeowlJump() {
   let cameraY = 0;
 
   function resizeCanvas() {
-    const wrap = document.getElementById('jump-canvas-wrap');
-    if (!wrap) return;
-    const rect = wrap.getBoundingClientRect();
+    const isLandscape = window.innerWidth > window.innerHeight && window.innerHeight < 550;
+    if (isLandscape) {
+      width = Math.min(480, window.innerWidth - 48);
+      height = Math.min(300, window.innerHeight - 80);
+    } else {
+      width = Math.min(390, window.innerWidth - 32);
+      height = Math.min(520, window.innerHeight - 150);
+    }
     const dpr = Math.min(window.devicePixelRatio || 1, 2);
 
-    width = Math.floor(rect.width);
-    height = Math.floor(rect.height);
-
-    canvas.width = width * dpr;
-    canvas.height = height * dpr;
+    canvas.width = Math.floor(width * dpr);
+    canvas.height = Math.floor(height * dpr);
     canvas.style.width = `${width}px`;
     canvas.style.height = `${height}px`;
 
-    ctx.scale(dpr, dpr);
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
   }
 
   function resetGame() {
@@ -136,9 +138,11 @@ export function setupMeowlJump() {
           if (p.type === 'spring') {
             player.vy = player.jumpPower * 1.5;
             sfx.coin();
+            if (navigator.vibrate) navigator.vibrate(25);
           } else {
             player.vy = player.jumpPower;
             sfx.feed();
+            if (navigator.vibrate) navigator.vibrate(12);
           }
           player.y = p.y - player.h / 2;
 
@@ -184,6 +188,7 @@ export function setupMeowlJump() {
   function triggerGameOver() {
     isGameOver = true;
     sfx.click();
+    if (navigator.vibrate) navigator.vibrate(40);
 
     const prevHigh = parseInt(localStorage.getItem('srgatos_jump_high') || '0', 10);
     if (score > prevHigh) {
@@ -320,15 +325,20 @@ export function setupMeowlJump() {
     });
   }
 
+  // Pointer and Touch controls (Ultra-responsive mobile dragging & side-steering)
+  let isPointerActive = false;
+
   function handlePointer(clientX) {
     if (!canvas) return;
     const rect = canvas.getBoundingClientRect();
-    player.targetX = clientX - rect.left;
+    const touchX = clientX - rect.left;
+    player.targetX = touchX;
   }
 
   canvas.addEventListener('pointerdown', (e) => {
     e.preventDefault();
-    canvas.setPointerCapture(e.pointerId);
+    isPointerActive = true;
+    try { canvas.setPointerCapture(e.pointerId); } catch (_) {}
 
     if (isGameOver) {
       resetGame();
@@ -338,19 +348,57 @@ export function setupMeowlJump() {
   });
 
   canvas.addEventListener('pointermove', (e) => {
-    if (e.buttons > 0) {
-      handlePointer(e.clientX);
-    }
+    if (!isPointerActive && e.buttons === 0) return;
+    e.preventDefault();
+    handlePointer(e.clientX);
   });
 
   canvas.addEventListener('pointerup', (e) => {
+    isPointerActive = false;
     try { canvas.releasePointerCapture(e.pointerId); } catch (_) {}
+  });
+
+  canvas.addEventListener('pointercancel', () => {
+    isPointerActive = false;
+  });
+
+  canvas.addEventListener('touchstart', (e) => {
+    e.preventDefault();
+    if (isGameOver) {
+      resetGame();
+      return;
+    }
+    if (e.touches && e.touches[0]) {
+      handlePointer(e.touches[0].clientX);
+    }
+  }, { passive: false });
+
+  canvas.addEventListener('touchmove', (e) => {
+    e.preventDefault();
+    if (e.touches && e.touches[0]) {
+      handlePointer(e.touches[0].clientX);
+    }
+  }, { passive: false });
+
+  window.addEventListener('keydown', (e) => {
+    if (!isRunning) return;
+    if (e.code === 'ArrowLeft' || e.code === 'KeyA') {
+      player.targetX = Math.max(20, player.x - 70);
+    } else if (e.code === 'ArrowRight' || e.code === 'KeyD') {
+      player.targetX = Math.min(width - 20, player.x + 70);
+    }
   });
 
   if (closeBtn) closeBtn.addEventListener('click', closeGame);
 
   window.addEventListener('resize', () => {
     if (isRunning) resizeCanvas();
+  });
+
+  window.addEventListener('orientationchange', () => {
+    setTimeout(() => {
+      if (isRunning) resizeCanvas();
+    }, 150);
   });
 
   return {

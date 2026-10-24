@@ -717,6 +717,11 @@ export function setupFlappyMeowl() {
     triggerJump();
   });
 
+  canvas.addEventListener('touchstart', (e) => {
+    e.preventDefault();
+    triggerJump();
+  }, { passive: false });
+
   window.addEventListener('keydown', (e) => {
     if (isRunning && (e.code === 'Space' || e.code === 'ArrowUp')) {
       e.preventDefault();
