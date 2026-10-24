@@ -26,10 +26,10 @@
   /* Minimum Clickable/Tap Targets (Apple HIG Standard) */
   --tap-target-min: 44px;
 
-  /* Typography Stack: SF Pro Native Priority */
-  --font-display: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro", "Helvetica Neue", sans-serif;
-  --font-body: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro", -apple-system, system-ui, sans-serif;
-  --font-mono: "SF Mono", Menlo, Monaco, Consolas, monospace;
+  /* Typography Stack: Plus Jakarta Sans & Space Grotesk Editorial */
+  --font-display: 'Space Grotesk', 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, "SF Pro Display", sans-serif;
+  --font-body: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, "SF Pro Text", system-ui, sans-serif;
+  --font-mono: 'SF Mono', Menlo, Monaco, Consolas, monospace;
 
   /* Typographic Specs */
   --headline-tracking: -0.022em;

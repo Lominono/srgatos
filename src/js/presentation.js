@@ -6,46 +6,41 @@ export function revealSarayPresentation() {
 
   mainApp.style.visibility = 'visible';
 
-  // Spawn celebratory welcoming micro-sparks around the Meowl stage
+  // Spawn cinematic luminous aura ripples around the Meowl
   const stage = document.getElementById('meowl-stage');
-  function spawnEntranceSparks() {
+  function spawnEntranceGleam() {
     if (!stage) return;
-    const items = ['✨', '🦉', '💖', '✨', '🎶'];
     const rect = stage.getBoundingClientRect();
     const centerX = rect.width / 2;
     const centerY = rect.height / 2;
 
-    items.forEach((emoji, i) => {
-      const el = document.createElement('span');
-      el.textContent = emoji;
-      el.style.position = 'absolute';
-      el.style.left = `${centerX}px`;
-      el.style.top = `${centerY}px`;
-      el.style.fontSize = `${Math.floor(Math.random() * 8 + 18)}px`;
-      el.style.pointerEvents = 'none';
-      el.style.zIndex = '30';
-      stage.appendChild(el);
+    for (let i = 0; i < 3; i++) {
+      const ring = document.createElement('div');
+      ring.style.position = 'absolute';
+      ring.style.left = `${centerX}px`;
+      ring.style.top = `${centerY}px`;
+      ring.style.width = '60px';
+      ring.style.height = '60px';
+      ring.style.borderRadius = '50%';
+      ring.style.border = i % 2 === 0 ? '1px solid rgba(255, 117, 151, 0.45)' : '1px solid rgba(100, 210, 255, 0.35)';
+      ring.style.boxShadow = i % 2 === 0 ? '0 0 25px rgba(255, 117, 151, 0.3)' : '0 0 25px rgba(10, 132, 255, 0.25)';
+      ring.style.transform = 'translate(-50%, -50%)';
+      ring.style.pointerEvents = 'none';
+      ring.style.zIndex = '5';
+      stage.appendChild(ring);
 
-      const angle = (i / items.length) * Math.PI * 2 + (Math.random() - 0.5);
-      const dist = 70 + Math.random() * 60;
-      const targetX = Math.cos(angle) * dist;
-      const targetY = Math.sin(angle) * dist - 25;
-
-      gsap.fromTo(el,
-        { x: 0, y: 0, autoAlpha: 1, scale: 0.4, rotation: 0 },
+      gsap.fromTo(ring,
+        { scale: 0.3, autoAlpha: 0.8 },
         {
-          x: targetX,
-          y: targetY,
+          scale: 3.8 + i * 0.8,
           autoAlpha: 0,
-          scale: 1.35,
-          rotation: (Math.random() - 0.5) * 80,
-          duration: 1.3,
-          delay: 0.3 + i * 0.08,
+          duration: 1.4 + i * 0.2,
+          delay: i * 0.18,
           ease: 'power2.out',
-          onComplete: () => el.remove()
+          onComplete: () => ring.remove()
         }
       );
-    });
+    }
   }
 
   const tl = gsap.timeline({
@@ -56,56 +51,57 @@ export function revealSarayPresentation() {
     autoAlpha: 1,
     duration: 0.5
   })
-  // 1. Cinematic Title: Blur-to-sharp expansion
+  // 1. Cinematic Title: Clean vertical glide with contrast settle
   .fromTo('.saray-title',
-    { y: 45, autoAlpha: 0, filter: 'blur(16px)', scale: 1.12 },
-    { y: 0, autoAlpha: 1, filter: 'blur(0px)', scale: 1, duration: 1.0, ease: 'power3.out' },
+    { y: 35, autoAlpha: 0, filter: 'blur(12px)', scale: 1.08 },
+    { y: 0, autoAlpha: 1, filter: 'blur(0px)', scale: 1, duration: 0.9, ease: 'power3.out' },
     '-=0.2'
   )
-  // 2. Subtitle with elegant fade
+  // 2. Subtitle with subtle precision fade
   .fromTo('.saray-sub',
-    { y: 16, autoAlpha: 0, filter: 'blur(4px)' },
-    { y: 0, autoAlpha: 1, filter: 'blur(0px)', duration: 0.7, ease: 'power2.out' },
-    '-=0.7'
+    { y: 12, autoAlpha: 0 },
+    { y: 0, autoAlpha: 1, duration: 0.6, ease: 'power2.out' },
+    '-=0.6'
   )
-  // 3. Iconic Centerpiece Meowl Stage Entrance
+  // 3. Iconic Centerpiece Meowl Entrance
   .fromTo('.meowl-stage',
-    { scale: 0.68, y: 35, autoAlpha: 0 },
+    { scale: 0.85, y: 25, autoAlpha: 0 },
     {
       scale: 1,
       y: 0,
       autoAlpha: 1,
-      duration: 0.95,
-      ease: 'back.out(1.8)',
-      onStart: () => spawnEntranceSparks()
+      duration: 0.85,
+      ease: 'back.out(1.4)',
+      onStart: () => spawnEntranceGleam()
     },
-    '-=0.6'
-  )
-  // 4. Luminous Aura Ignition
-  .fromTo('#meowl-ambient-aura',
-    { scale: 0.25, autoAlpha: 0 },
-    { scale: 1, autoAlpha: 0.85, duration: 1.2, ease: 'power2.out' },
-    '-=0.8'
-  )
-  // 5. Staggered Action Pills Cascade with 3D Flip
-  .fromTo(['.action-pill', '.action-pill-featured'],
-    { y: 32, autoAlpha: 0, scale: 0.9, rotationX: -14 },
-    { y: 0, autoAlpha: 1, scale: 1, rotationX: 0, stagger: 0.08, duration: 0.65, ease: 'back.out(1.5)' },
     '-=0.5'
+  )
+  // 4. Ambient Aura bloom
+  .fromTo('#meowl-ambient-aura',
+    { scale: 0.4, autoAlpha: 0 },
+    { scale: 1, autoAlpha: 0.85, duration: 1.1, ease: 'power2.out' },
+    '-=0.7'
+  )
+  // 5. Staggered Action Pills Entrance
+  .fromTo(['.action-pill', '.action-pill-featured'],
+    { y: 24, autoAlpha: 0, scale: 0.94 },
+    { y: 0, autoAlpha: 1, scale: 1, stagger: 0.06, duration: 0.55, ease: 'power2.out' },
+    '-=0.45'
   )
   // 6. Floating Player Dock - Apple Dynamic Island slide-up
   .fromTo('.player-dock',
-    { y: 60, autoAlpha: 0, scale: 0.92 },
-    { y: 0, autoAlpha: 1, scale: 1, duration: 0.8, ease: 'power3.out' },
-    '-=0.5'
+    { y: 45, autoAlpha: 0, scale: 0.96 },
+    { y: 0, autoAlpha: 1, scale: 1, duration: 0.7, ease: 'power3.out' },
+    '-=0.45'
   )
   // 7. Album Artwork Pop
   .fromTo('.player-artwork',
-    { scale: 0.65, rotation: -15, autoAlpha: 0 },
-    { scale: 1, rotation: 0, autoAlpha: 1, duration: 0.55, ease: 'back.out(2)' },
-    '-=0.6'
+    { scale: 0.75, autoAlpha: 0 },
+    { scale: 1, autoAlpha: 1, duration: 0.45, ease: 'back.out(1.8)' },
+    '-=0.5'
   );
 
   return tl;
 }
+
 

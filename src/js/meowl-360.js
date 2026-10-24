@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 import gsap from 'gsap';
 
-export function setupMeowl360() {
+export function setupMeowl360(openImmediately = false) {
   const container = document.getElementById('meowl-360-container');
   const canvas = document.getElementById('meowl-360-canvas');
   const open360Btn = document.getElementById('btn-open-360');
@@ -333,5 +333,9 @@ export function setupMeowl360() {
         alert('Giroscopio no soportado en este navegador. Puedes arrastrar con el dedo.');
       }
     });
+  }
+
+  if (openImmediately) {
+    open360Mode();
   }
 }

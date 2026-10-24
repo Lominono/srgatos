@@ -3,9 +3,12 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-  <meta name="theme-color" content="#000000">
+  <meta name="theme-color" content="#08080a">
   <title>SARAY</title>
   <link rel="icon" type="image/png" href="/images/gato.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,300..800;1,300..800&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
 </head>
 <body>
   <!-- Fullscreen Cinematic Intro (Zero video-player chrome, pure full-bleed cinema) -->
@@ -20,102 +23,222 @@
         <div id="welcome-sequence" class="welcome-sequence">
           <h1 class="welcome-hero-name">SARAY</h1>
           <p class="welcome-hero-sub">how's your knee</p>
+          <span class="welcome-credit">Joyce Chu</span>
         </div>
 
         <div class="epic-trigger-wrap">
-          <div class="epic-trigger-ring epic-trigger-ring-outer"></div>
-          <div class="epic-trigger-ring epic-trigger-ring-inner"></div>
+          <div class="epic-trigger-halo"></div>
           <button id="start-experience-btn" class="epic-trigger-btn" aria-label="Iniciar experiencia">
-            <span class="trigger-play-icon">▶</span>
+            <svg class="trigger-play-svg" viewBox="0 0 24 24" width="22" height="22" fill="currentColor">
+              <polygon points="7,4 20,12 7,20"/>
+            </svg>
             <span class="trigger-label">ENTRAR</span>
           </button>
         </div>
       </div>
 
       <!-- Discreet skip dot -->
-      <button id="dismiss-intro-btn" class="discreet-dismiss-btn" aria-label="Cerrar introducción">✕</button>
+      <button id="dismiss-intro-btn" class="discreet-dismiss-btn" aria-label="Cerrar introducción">
+        <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5">
+          <line x1="18" y1="6" x2="6" y2="18"/>
+          <line x1="6" y1="6" x2="18" y2="18"/>
+        </svg>
+      </button>
     </div>
   </div>
 
-  <!-- Main Experience -->
-  <main id="main-app">
-    <!-- Header: Simply SARAY -->
-    <header class="saray-hero">
-      <h1 class="saray-title">SARAY</h1>
-      <p class="saray-sub">how's your knee</p>
-    </header>
+  <!-- Gateway Selector Hub: Thiago & Saray (Shows after video) -->
+  <div id="experience-hub" class="experience-hub" style="display: none;">
+    <div class="hub-modal-card">
+      <header class="hub-header">
+        <h2 class="hub-title">¿Quién va a jugar?</h2>
+        <p class="hub-subtitle">Elige tu mascota para entrar a su habitación</p>
+      </header>
 
-    <!-- Centerpiece: The Meowl -->
-    <section class="meowl-container">
-      <div class="meowl-stage" id="meowl-stage" title="Desliza o toca al gato">
+      <div class="hub-cards-grid">
+        <!-- Big Yellow Button: Thiago -->
+        <button class="hub-card hub-card-thiago" id="hub-btn-thiago" aria-label="Jugar con el gato de Thiago">
+          <div class="hub-card-glow"></div>
+          <div class="hub-card-avatar">
+            <img src="/images/gato.png" alt="Gato de Thiago" class="hub-avatar-img">
+            <span class="hub-avatar-badge">👑</span>
+          </div>
+          <div class="hub-card-meta">
+            <span class="hub-card-name">Thiago</span>
+            <span class="hub-card-tag">El michi de Thiago</span>
+          </div>
+          <div class="hub-card-action">Entrar →</div>
+        </button>
+
+        <!-- Big Purple Button: Saray -->
+        <button class="hub-card hub-card-saray" id="hub-btn-saray" aria-label="Jugar con el gato de Saray">
+          <div class="hub-card-glow"></div>
+          <div class="hub-card-avatar">
+            <img src="/images/gato.png" alt="Gato de Saray" class="hub-avatar-img">
+            <span class="hub-avatar-badge">🕶️</span>
+          </div>
+          <div class="hub-card-meta">
+            <span class="hub-card-name">Saray</span>
+            <span class="hub-card-tag">El michi de Saray</span>
+          </div>
+          <div class="hub-card-action">Entrar →</div>
+        </button>
+      </div>
+
+      <!-- Secondary subtle access to original music & 360 showcase -->
+      <footer class="hub-footer">
+        <button class="hub-link-btn" id="hub-btn-showcase">
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor">
+            <path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z"/>
+          </svg>
+          <span>Ver música y experiencia 360°</span>
+        </button>
+      </footer>
+    </div>
+  </div>
+
+  <!-- Meowl Virtual Pet Screen (Pou style) -->
+  <div id="pet-container" class="pet-app-container" style="display: none;"></div>
+
+  <!-- Main Experience -->
+  <main id="main-app" style="display: none;">
+    <!-- Top Bar with Return to Pet/Hub -->
+    <div class="main-app-nav">
+      <button class="app-nav-btn" id="btn-return-hub" aria-label="Ir a la mascota">
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5">
+          <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+          <polyline points="9 22 9 12 15 12 15 22"/>
+        </svg>
+        <span>Mascota Pou</span>
+      </button>
+    </div>
+    <!-- Centerpiece: The Meowl Column -->
+    <section class="meowl-container" id="meowl-section">
+      <div class="meowl-stage" id="meowl-stage" title="Toca o acaricia al gato">
         <div class="meowl-ambient-aura" id="meowl-ambient-aura"></div>
+        <div class="meowl-pedestal"></div>
         <div class="meowl-wrapper" id="meowl-wrapper">
           <img src="/images/gato.png" alt="Gato Búho" class="meowl-avatar">
+          <!-- Easter Egg: Sunglasses drop -->
+          <div class="meowl-sunglasses" id="meowl-sunglasses">
+            <svg viewBox="0 0 130 36" class="sunglasses-svg">
+              <rect x="10" y="8" width="46" height="24" rx="4" fill="#000000" stroke="#ffffff" stroke-width="1.5"/>
+              <rect x="74" y="8" width="46" height="24" rx="4" fill="#000000" stroke="#ffffff" stroke-width="1.5"/>
+              <rect x="56" y="14" width="18" height="6" fill="#000000"/>
+              <rect x="18" y="12" width="10" height="4" fill="#ffffff" opacity="0.85"/>
+              <rect x="82" y="12" width="10" height="4" fill="#ffffff" opacity="0.85"/>
+              <rect x="0" y="10" width="10" height="4" fill="#000000"/>
+              <rect x="120" y="10" width="10" height="4" fill="#000000"/>
+            </svg>
+          </div>
         </div>
       </div>
 
-      <!-- Action buttons -->
+      <!-- Action buttons with professional SVG icons -->
       <div class="meowl-actions">
-        <button class="action-pill" id="btn-spin-neck" aria-label="Girar cuello 360 grados">
-          Girar cuello 360°
+        <button class="action-pill" id="btn-spin-neck" aria-label="Giro de lechuza 360 grados">
+          <svg class="pill-svg-icon" viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M21 12a9 9 0 1 1-9-9c2.52 0 4.8 1.04 6.44 2.73L21 8"/>
+            <path d="M21 3v5h-5"/>
+          </svg>
+          <span>Giro lechuza 360°</span>
         </button>
         <button class="action-pill action-pill-flappy" id="btn-open-flappy" aria-label="Jugar Flappy Meowl">
-          🎮 Flappy Meowl
+          <svg class="pill-svg-icon" viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="2" y="6" width="20" height="12" rx="4"/>
+            <path d="M6 12h4M8 10v4M15 11h.01M18 13h.01"/>
+          </svg>
+          <span>Flappy Meowl</span>
         </button>
-        <button class="action-pill" id="btn-hows-knee" aria-label="How's your knee">
-          How's your knee?
+        <button class="action-pill" id="btn-hows-knee" aria-label="How's your knee?">
+          <svg class="pill-svg-icon" viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M22 12h-4l-3 9L9 3l-3 9H2"/>
+          </svg>
+          <span>How's your knee?</span>
         </button>
       </div>
 
       <!-- 360 Experience Launch Button -->
-      <button class="action-pill-featured" id="btn-open-360" aria-label="Buscar Meowl en 360 grados">
-        <span>🌐</span>
-        <span>Buscar al Meowl en 360°</span>
+      <button class="action-pill-featured" id="btn-open-360" aria-label="Buscar al gato en 360 grados">
+        <svg class="action-icon-svg" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="12" r="9"/>
+          <path d="M3.6 9h16.8M3.6 15h16.8M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18"/>
+        </svg>
+        <span>Buscar al gato en 360°</span>
       </button>
     </section>
 
-    <!-- Clean Audio Dock with Scrubber & Apple Music Lyric Pop -->
-    <section class="player-dock" id="player-dock">
-      <div class="player-main-row">
-        <div class="player-artwork">
-          <img src="/images/gato.png" alt="Audio thumbnail">
-        </div>
-        <div class="player-meta">
-          <div class="player-track-name">How's Your Knee (好想你)</div>
-          <div class="player-artist-name">Joyce Chu</div>
-        </div>
-        <div class="player-waveform" id="player-waveform">
-          <span class="wave-bar"></span>
-          <span class="wave-bar"></span>
-          <span class="wave-bar"></span>
-          <span class="wave-bar"></span>
-        </div>
-        <button class="player-play-btn" id="player-play-btn" aria-label="Reproducir o pausar">
-          <span id="player-play-icon" style="font-size: 15px; margin-left: 2px;">▶</span>
-        </button>
-      </div>
+    <!-- Side Panel / Desktop & Landscape Column -->
+    <div class="main-side-panel">
+      <!-- Header: Simply SARAY -->
+      <header class="saray-hero">
+        <h1 class="saray-title">SARAY</h1>
+        <p class="saray-sub">how's your knee</p>
+      </header>
 
-      <!-- Interactive Progress Scrubber -->
-      <div class="player-progress-row">
-        <span class="player-time" id="player-time-current">0:00</span>
-        <div class="player-progress-track" id="player-progress-track" title="Toca para saltar">
-          <div class="player-progress-fill" id="player-progress-fill"></div>
+      <!-- Clean Audio Dock with Scrubber & Interactive Lyrics with Easter Eggs -->
+      <section class="player-dock" id="player-dock">
+        <div class="player-main-row">
+          <div class="player-artwork">
+            <img src="/images/gato.png" alt="Audio thumbnail">
+          </div>
+          <div class="player-meta">
+            <div class="player-track-name">How's Your Knee (好想你)</div>
+            <div class="player-artist-name">Joyce Chu</div>
+          </div>
+          <div class="player-waveform" id="player-waveform">
+            <span class="wave-bar"></span>
+            <span class="wave-bar"></span>
+            <span class="wave-bar"></span>
+            <span class="wave-bar"></span>
+          </div>
+          <button class="player-like-btn" id="player-like-btn" aria-label="Meter en favoritos">
+            <svg id="player-like-icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+            </svg>
+          </button>
+          <span class="player-like-count" id="player-like-count">0</span>
+          <button class="player-play-btn" id="player-play-btn" aria-label="Reproducir o pausar">
+            <svg id="player-play-icon" viewBox="0 0 24 24" width="15" height="15" fill="currentColor">
+              <polygon points="7,4 20,12 7,20"/>
+            </svg>
+          </button>
         </div>
-        <span class="player-time" id="player-time-total">2:38</span>
-      </div>
 
-      <!-- Synchronized Lyric Line -->
-      <div class="player-lyric-box">
-        <div class="player-lyric-line" id="player-lyric-line">
-          🎶 [Ukulele Intro] — Get ready for Saray...
+        <!-- Interactive Progress Scrubber -->
+        <div class="player-progress-row">
+          <span class="player-time" id="player-time-current">0:00</span>
+          <div class="player-progress-track" id="player-progress-track" title="Toca para saltar">
+            <div class="player-progress-fill" id="player-progress-fill"></div>
+          </div>
+          <span class="player-time" id="player-time-total">2:38</span>
         </div>
-      </div>
-    </section>
 
-    <!-- Minimal Editorial Footer -->
-    <footer class="editorial-footer">
-      Saray • 2026
-    </footer>
+        <!-- Synchronized Lyric Box with Easter Eggs & Colloquial Subtitles -->
+        <div class="player-lyric-box" id="player-lyric-box" title="Toca la letra">
+          <div class="player-lyric-header">
+            <span class="lyric-easter-hint" id="lyric-easter-hint">Toca la letra ⚡</span>
+          </div>
+          <div class="player-lyric-line" id="player-lyric-line">
+            [Intro de ukelele] — Todo listo para Saray...
+          </div>
+          <div class="player-lyric-comment" id="player-lyric-comment">
+            (Ponte cómodo que empieza lo bueno)
+          </div>
+        </div>
+
+        <!-- Easter Egg Toast / Badge Popup -->
+        <div class="lyric-easter-toast" id="lyric-easter-toast">
+          <span id="easter-toast-icon">🦴</span>
+          <span id="easter-toast-text">Estado de rodilla: 100% biónica</span>
+        </div>
+      </section>
+
+      <!-- Minimal Editorial Footer -->
+      <footer class="editorial-footer">
+        Saray
+      </footer>
+    </div>
   </main>
 
   <!-- Flappy Meowl Mini-Game Modal -->
@@ -123,7 +246,7 @@
     <div class="flappy-card">
       <div class="flappy-header">
         <div class="flappy-title-box">
-          <span class="flappy-game-tag">ARCADE</span>
+          <span class="flappy-game-tag">MINIJUEGO</span>
           <h2 class="flappy-game-title">FLAPPY MEOWL</h2>
         </div>
         <button class="flappy-close-btn" id="btn-close-flappy" aria-label="Cerrar juego">✕</button>
@@ -131,7 +254,41 @@
       <div id="flappy-canvas-wrap" class="flappy-canvas-wrap">
         <canvas id="flappy-canvas"></canvas>
       </div>
-      <div class="flappy-footer-hint">Toca o pulsa espacio para aletear</div>
+      <div class="flappy-footer-hint">Toca la pantalla o dale al espacio para volar</div>
+    </div>
+  </div>
+
+  <!-- Meowl Catcher Mini-Game Modal (Atrapa-Comida) -->
+  <div id="catcher-modal" class="flappy-modal" style="display: none;">
+    <div class="flappy-card">
+      <div class="flappy-header">
+        <div class="flappy-title-box">
+          <span class="flappy-game-tag">MINIJUEGO</span>
+          <h2 class="flappy-game-title">ATRAPA-COMIDA</h2>
+        </div>
+        <button class="flappy-close-btn" id="btn-close-catcher" aria-label="Cerrar juego">✕</button>
+      </div>
+      <div id="catcher-canvas-wrap" class="flappy-canvas-wrap">
+        <canvas id="catcher-canvas"></canvas>
+      </div>
+      <div class="flappy-footer-hint">Arrastra a Meowl con el dedo para atrapar comidas y monedas (¡evita las bombas!)</div>
+    </div>
+  </div>
+
+  <!-- Meowl Sky Jump Mini-Game Modal (Salto Michi) -->
+  <div id="jump-modal" class="flappy-modal" style="display: none;">
+    <div class="flappy-card">
+      <div class="flappy-header">
+        <div class="flappy-title-box">
+          <span class="flappy-game-tag">NUEVO MINIJUEGO</span>
+          <h2 class="flappy-game-title">SALTO MICHI</h2>
+        </div>
+        <button class="flappy-close-btn" id="btn-close-jump" aria-label="Cerrar juego">✕</button>
+      </div>
+      <div id="jump-canvas-wrap" class="flappy-canvas-wrap">
+        <canvas id="jump-canvas"></canvas>
+      </div>
+      <div class="flappy-footer-hint">Mueve a Meowl a los lados para rebotar en las plataformas y escalar al cielo</div>
     </div>
   </div>
 
@@ -141,7 +298,7 @@
 
     <!-- 360 HUD Overlay -->
     <div class="hud-top">
-      <div class="hud-status" id="meowl-360-status">Arrastra para buscar al Meowl en 360°</div>
+      <div class="hud-status" id="meowl-360-status">Arrastra la pantalla para buscar al gato</div>
       <button class="hud-btn-close" id="btn-close-360" aria-label="Cerrar 360">✕</button>
     </div>
 
@@ -158,13 +315,13 @@
           <div class="phone-shape"></div>
           <span class="phone-arrow">↺</span>
         </div>
-        <div class="orientation-title">GIRA TU TELÉFONO</div>
-        <div class="orientation-desc">Para ver el video 360° con campo visual completo, pon tu pantalla en horizontal.</div>
-        <button id="btn-dismiss-orientation" class="orientation-dismiss-btn">Continuar en vertical</button>
+        <div class="orientation-title">GIRA EL MÓVIL</div>
+        <div class="orientation-desc">Para ver el vídeo en panorámica completa de 360°, ponte en horizontal.</div>
+        <button id="btn-dismiss-orientation" class="orientation-dismiss-btn">Me da igual, seguir en vertical</button>
       </div>
     </div>
 
-    <!-- 360 Bottom Controls (Removed 'lo encontré' button) -->
+    <!-- 360 Bottom Controls -->
     <div class="hud-bottom">
       <div class="hud-secondary-actions">
         <button class="hud-secondary-btn" id="btn-sound-360">Sonido: OFF</button>

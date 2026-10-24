@@ -18,6 +18,7 @@ export function setupFlappyMeowl() {
   let isRunning = false;
   let isPaused = false;
   let gameState = 'START'; // 'START', 'PLAYING', 'GAMEOVER'
+  let onGameOverCb = null;
 
   // Web Audio SFX
   let audioCtx = null;
@@ -103,11 +104,26 @@ export function setupFlappyMeowl() {
   let height = 580;
 
   function resizeCanvas() {
-    width = Math.min(420, window.innerWidth - 32);
-    height = Math.min(620, window.innerHeight - 110);
+    const isLandscape = window.innerWidth > window.innerHeight && window.innerHeight < 550;
+    if (isLandscape) {
+      width = Math.min(480, window.innerWidth - 64);
+      height = Math.min(300, window.innerHeight - 80);
+    } else {
+      width = Math.min(420, window.innerWidth - 32);
+      height = Math.min(620, window.innerHeight - 110);
+    }
     canvas.width = width;
     canvas.height = height;
   }
+
+  window.addEventListener('resize', () => {
+    if (isRunning) resizeCanvas();
+  });
+  window.addEventListener('orientationchange', () => {
+    setTimeout(() => {
+      if (isRunning) resizeCanvas();
+    }, 150);
+  });
 
   // Bird & Physics
   const gravity = 0.36;
@@ -402,6 +418,14 @@ export function setupFlappyMeowl() {
     playHitSound();
     if (navigator.vibrate) navigator.vibrate([40, 40, 50]);
 
+    if (typeof onGameOverCb === 'function') {
+      try {
+        onGameOverCb(score);
+      } catch (e) {
+        console.warn('Flappy callback error:', e);
+      }
+    }
+
     // Canvas shake
     gsap.timeline()
       .to(canvas, { x: 9, duration: 0.04, repeat: 5, yoyo: true })
@@ -594,54 +618,54 @@ export function setupFlappyMeowl() {
       }
     } else if (gameState === 'START') {
       ctx.fillStyle = '#ffffff';
-      ctx.font = '800 24px -apple-system, sans-serif';
+      ctx.font = '800 22px -apple-system, sans-serif';
       ctx.textAlign = 'center';
-      ctx.fillText('FLAPPY MEOWL', width / 2, height * 0.32);
+      ctx.fillText('FLAPPY MEOWL', width / 2, height * 0.30);
 
-      ctx.fillStyle = 'rgba(255, 255, 255, 0.7)';
-      ctx.font = '14px -apple-system, sans-serif';
-      ctx.fillText('Toca la pantalla para aletear', width / 2, height * 0.62);
+      ctx.fillStyle = 'rgba(255, 255, 255, 0.75)';
+      ctx.font = '13.5px -apple-system, sans-serif';
+      ctx.fillText('Toca la pantalla o pulsa espacio para volar', width / 2, height * 0.58);
 
       ctx.fillStyle = '#FFD60A';
       ctx.font = '12px -apple-system, sans-serif';
-      ctx.fillText('✨ Atrapa los pescados dorados (+5 pts)', width / 2, height * 0.67);
+      ctx.fillText('Pillate los pescaditos dorados (+5 pts)', width / 2, height * 0.65);
 
       if (highScore > 0) {
         ctx.fillStyle = 'rgba(255, 255, 255, 0.5)';
-        ctx.font = '13px -apple-system, sans-serif';
-        ctx.fillText(`Récord actual: ${highScore}`, width / 2, height * 0.72);
+        ctx.font = '12px -apple-system, sans-serif';
+        ctx.fillText(`Tu mejor récord: ${highScore}`, width / 2, height * 0.72);
       }
     } else if (gameState === 'GAMEOVER') {
-      // Game Over Glass Card
-      ctx.fillStyle = 'rgba(10, 10, 16, 0.8)';
-      const cardW = width * 0.84;
-      const cardH = 200;
+      // Game Over Glass Card adaptable
+      ctx.fillStyle = 'rgba(12, 12, 18, 0.88)';
+      const cardW = Math.min(320, width * 0.86);
+      const cardH = Math.min(190, height * 0.65);
       const cardX = (width - cardW) / 2;
-      const cardY = height * 0.28;
+      const cardY = (height - cardH) / 2;
 
-      ctx.roundRect ? ctx.roundRect(cardX, cardY, cardW, cardH, 20) : ctx.fillRect(cardX, cardY, cardW, cardH);
+      ctx.roundRect ? ctx.roundRect(cardX, cardY, cardW, cardH, 18) : ctx.fillRect(cardX, cardY, cardW, cardH);
       ctx.fill();
 
-      ctx.strokeStyle = 'rgba(255, 255, 255, 0.2)';
+      ctx.strokeStyle = 'rgba(255, 255, 255, 0.18)';
       ctx.lineWidth = 1;
       ctx.stroke();
 
       ctx.fillStyle = '#FF375F';
-      ctx.font = '800 24px -apple-system, sans-serif';
+      ctx.font = '800 20px -apple-system, sans-serif';
       ctx.textAlign = 'center';
-      ctx.fillText('GAME OVER', width / 2, cardY + 45);
+      ctx.fillText('¡TE ESTAMPASTE!', width / 2, cardY + cardH * 0.25);
 
       ctx.fillStyle = '#ffffff';
-      ctx.font = '700 20px -apple-system, sans-serif';
-      ctx.fillText(`${score} Puntos`, width / 2, cardY + 85);
+      ctx.font = '700 18px -apple-system, sans-serif';
+      ctx.fillText(`${score} Puntos`, width / 2, cardY + cardH * 0.48);
 
       ctx.fillStyle = '#FFD60A';
-      ctx.font = '600 14px -apple-system, sans-serif';
-      ctx.fillText(`👑 Mejor Récord: ${highScore}`, width / 2, cardY + 120);
+      ctx.font = '600 13px -apple-system, sans-serif';
+      ctx.fillText(`Récord actual: ${highScore}`, width / 2, cardY + cardH * 0.68);
 
-      ctx.fillStyle = 'rgba(255, 255, 255, 0.65)';
-      ctx.font = '13px -apple-system, sans-serif';
-      ctx.fillText('Toca para revivir', width / 2, cardY + 165);
+      ctx.fillStyle = 'rgba(255, 255, 255, 0.7)';
+      ctx.font = '12.5px -apple-system, sans-serif';
+      ctx.fillText('Dale para intentarlo otra vez', width / 2, cardY + cardH * 0.88);
     }
 
     ctx.restore();
@@ -703,4 +727,15 @@ export function setupFlappyMeowl() {
   window.addEventListener('resize', () => {
     if (isRunning) resizeCanvas();
   });
+
+  return {
+    openGame: (cb) => {
+      onGameOverCb = cb || null;
+      openGame();
+    },
+    closeGame,
+    setOnGameOver: (cb) => {
+      onGameOverCb = cb;
+    }
+  };
 }

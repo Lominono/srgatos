@@ -6,8 +6,11 @@ export function setupMeowlInteractive(onToggleMusic) {
   const aura = document.getElementById('meowl-ambient-aura');
   const spinBtn = document.getElementById('btn-spin-neck');
   const howsKneeBtn = document.getElementById('btn-hows-knee');
+  const sunglassesEl = document.getElementById('meowl-sunglasses');
 
   if (!stage || !wrapper) return;
+
+  let sunglassesActive = false;
 
   // 3D Perspective Setup
   stage.style.perspective = '1100px';
@@ -49,11 +52,14 @@ export function setupMeowlInteractive(onToggleMusic) {
   stage.appendChild(fxContainer);
 
   const kneePhrases = [
-    "MY KNEE IS 10/10! 🦵✨",
-    "HOW'S YOUR KNEE, SARAY? 🦉",
-    "NO KNEE PAIN DETECTED! ⚡",
-    "MISSING YOUR KNEE 24/7! 🎶",
-    "100% HEALTHY KNEE FLEX! 💪"
+    "How's your knee, Saray? Pregunta seria.",
+    "0 crujidos hoy: your knee is 10/10.",
+    "Dime how's your knee y me quedo tranquilo.",
+    "How's your knee? Rodilla de titanio confirmada.",
+    "Si cruje un poco es que tiene ritmo.",
+    "No pain, pure knee flex.",
+    "Joyce Chu asking: how's your knee!",
+    "0 molestias hoy, que esa rodilla tiene que bailar."
   ];
   let phraseIdx = 0;
 
@@ -337,7 +343,7 @@ export function setupMeowlInteractive(onToggleMusic) {
     spinBtn.addEventListener('click', (e) => {
       e.stopPropagation();
       pauseIdleBreathing();
-      showBubble("🌪️ 360° HYPER-SPIN!", 2.0);
+      showBubble("¡Giro de lechuza 360°!", 2.0);
 
       const rect = wrapper.getBoundingClientRect();
       const stageRect = stage.getBoundingClientRect();
@@ -345,8 +351,8 @@ export function setupMeowlInteractive(onToggleMusic) {
       const centerY = rect.top - stageRect.top + rect.height / 2;
 
       // Burst of wind vortex sparkles
-      for (let i = 0; i < 5; i++) {
-        setTimeout(() => spawnFloatingEmoji(i % 2 === 0 ? '🌪️' : '✨', centerX + (Math.random() - 0.5) * 60, centerY), i * 110);
+      for (let i = 0; i < 4; i++) {
+        setTimeout(() => spawnFloatingEmoji('🌪️', centerX + (Math.random() - 0.5) * 60, centerY), i * 120);
       }
 
       gsap.timeline({
@@ -422,7 +428,7 @@ export function setupMeowlInteractive(onToggleMusic) {
 
       const phrase = kneePhrases[phraseIdx % kneePhrases.length];
       phraseIdx++;
-      showBubble(phrase, 2.2);
+      showBubble(phrase, 2.4);
 
       const rect = wrapper.getBoundingClientRect();
       const stageRect = stage.getBoundingClientRect();
@@ -433,7 +439,6 @@ export function setupMeowlInteractive(onToggleMusic) {
 
       spawnFloatingEmoji('🦵', centerX - 30, centerY - 20);
       spawnFloatingEmoji('🎶', centerX + 30, centerY - 20);
-      spawnFloatingEmoji('✨', centerX, centerY - 40);
 
       // Joyful double hop wiggle with squash & stretch
       gsap.timeline({
@@ -448,6 +453,63 @@ export function setupMeowlInteractive(onToggleMusic) {
         onToggleMusic();
       }
     });
+  }
+
+  // Easter Egg: Pixel Sunglasses Drop
+  function toggleSunglasses() {
+    if (!sunglassesEl) return false;
+    sunglassesActive = !sunglassesActive;
+
+    if (sunglassesActive) {
+      gsap.killTweensOf(sunglassesEl);
+      gsap.fromTo(sunglassesEl,
+        { y: -90, scale: 0.2, autoAlpha: 0, rotation: -25 },
+        { y: 0, scale: 1, autoAlpha: 1, rotation: 0, duration: 0.65, ease: 'bounce.out' }
+      );
+      showBubble("😎 Flow 100% verificado", 2.2);
+
+      // Cool suave nod
+      gsap.timeline()
+        .to(wrapper, { y: -10, scaleY: 1.04, duration: 0.15, ease: 'power2.out' })
+        .to(wrapper, { y: 0, scaleY: 1, duration: 0.2, ease: 'power2.in' });
+    } else {
+      gsap.to(sunglassesEl, {
+        y: -60,
+        scale: 0.3,
+        autoAlpha: 0,
+        duration: 0.3,
+        ease: 'power2.in'
+      });
+      showBubble("Gafas guardadas 🦉", 1.8);
+    }
+    return sunglassesActive;
+  }
+
+  // Easter Egg: High energy chorus reaction
+  function triggerChorusReaction() {
+    pauseIdleBreathing();
+    showBubble("🔥 ¡VAMOS SARAY! ¡HOW'S YOUR KNEE!", 2.4);
+
+    gsap.timeline({
+      onComplete: () => resumeIdleBreathing()
+    })
+      .to(wrapper, { y: -42, scaleY: 1.15, scaleX: 0.88, duration: 0.18, ease: 'power2.out' })
+      .to(wrapper, { rotation: 360, duration: 0.45, ease: 'power1.inOut' })
+      .to(wrapper, { y: 0, scaleY: 0.88, scaleX: 1.12, duration: 0.15, ease: 'power2.in' })
+      .to(wrapper, { rotation: 0, scaleY: 1, scaleX: 1, duration: 0.3, ease: 'elastic.out(1.2, 0.4)' });
+  }
+
+  // Easter Egg: Cute squish and tactile reaction on lyric tap
+  function triggerEasterReaction() {
+    pauseIdleBreathing();
+    const tilt = (Math.random() - 0.5) * 14;
+
+    gsap.timeline({
+      onComplete: () => resumeIdleBreathing()
+    })
+      .to(wrapper, { scaleY: 0.92, scaleX: 1.08, rotation: tilt, duration: 0.12, ease: 'power2.in' })
+      .to(wrapper, { y: -18, scaleY: 1.08, scaleX: 0.94, duration: 0.16, ease: 'power2.out' })
+      .to(wrapper, { y: 0, scaleY: 1, scaleX: 1, rotation: 0, duration: 0.26, ease: 'elastic.out(1.2, 0.4)' });
   }
 
   // 3. Groovy Beat Dancing (Sync with 120 BPM song tempo = 0.5s cycle)
@@ -510,6 +572,9 @@ export function setupMeowlInteractive(onToggleMusic) {
         ease: 'power2.out',
         onComplete: () => resumeIdleBreathing()
       });
-    }
+    },
+    toggleSunglasses,
+    triggerChorusReaction,
+    triggerEasterReaction
   };
 }

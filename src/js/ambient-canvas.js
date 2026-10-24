@@ -88,6 +88,15 @@ export function setupAmbientCanvas() {
     animId = requestAnimationFrame(render);
   }
 
+  document.addEventListener('visibilitychange', () => {
+    if (document.hidden) {
+      if (animId) cancelAnimationFrame(animId);
+      animId = null;
+    } else if (!animId) {
+      render();
+    }
+  });
+
   render();
 
   return {

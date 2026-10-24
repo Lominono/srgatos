@@ -10,5 +10,16 @@ export default defineConfig({
       ignored: ['**/video/**', '**/public/video/**']
     }
   },
-  publicDir: 'public'
+  publicDir: 'public',
+  build: {
+    chunkSizeWarningLimit: 700,
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          three: ['three'],
+          gsap: ['gsap']
+        }
+      }
+    }
+  }
 });

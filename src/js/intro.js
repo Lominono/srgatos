@@ -61,6 +61,7 @@ export function setupVideoIntro(onIntroComplete, onUserStart) {
     gsap.set(triggerWrap, { autoAlpha: 0, scale: 0.92, y: 10 });
     gsap.set('.welcome-hero-name', { autoAlpha: 0, scale: 0.96, filter: 'blur(10px)' });
     gsap.set('.welcome-hero-sub', { autoAlpha: 0, y: 6 });
+    gsap.set('.welcome-credit', { autoAlpha: 0, y: 6 });
 
     const welcomeTl = gsap.timeline({ delay: 0.25 });
 
@@ -78,12 +79,27 @@ export function setupVideoIntro(onIntroComplete, onUserStart) {
         duration: 0.6,
         ease: 'power2.out'
       }, '-=0.4')
+      .to('.welcome-credit', {
+        autoAlpha: 1,
+        y: 0,
+        duration: 0.5,
+        ease: 'power2.out'
+      }, '-=0.3')
       .to(triggerWrap, {
         autoAlpha: 1,
         scale: 1,
         y: 0,
         duration: 0.7,
         ease: 'power3.out'
+      }, '-=0.2')
+      // Subtle pulse hint on trigger to invite interaction
+      .to(triggerWrap, {
+        scale: 1.03,
+        duration: 0.3,
+        ease: 'sine.inOut',
+        yoyo: true,
+        repeat: 2,
+        repeatDelay: 0.5
       }, '-=0.2');
   }
 
@@ -100,7 +116,7 @@ export function setupVideoIntro(onIntroComplete, onUserStart) {
       });
     }
 
-    // Smooth cinematic visual fade out to black
+    // Smooth cinematic visual fade out to black with Apple spring feel
     gsap.to(videoOverlay, {
       autoAlpha: 0,
       scale: 1.04,
@@ -119,7 +135,7 @@ export function setupVideoIntro(onIntroComplete, onUserStart) {
     });
   }
 
-  // Epic tactile trigger
+  // Epic tactile trigger con spring Apple
   if (startBtn) {
     startBtn.addEventListener('click', async () => {
       playCinematicAudio('start');
@@ -128,22 +144,31 @@ export function setupVideoIntro(onIntroComplete, onUserStart) {
         onUserStart();
       }
 
-      // Epic Cinema Shockwave Warp
+      // Apple-style spring shockwave
       const blastTl = gsap.timeline();
 
       blastTl
-        .to('.epic-trigger-ring-outer', {
-          scale: 3.5,
-          autoAlpha: 0,
-          duration: 0.7,
-          ease: 'power3.out'
-        })
-        .to('.epic-trigger-ring-inner', {
-          scale: 2.8,
+        .to('.epic-trigger-halo', {
+          scale: 3.2,
           autoAlpha: 0,
           duration: 0.6,
-          ease: 'power2.out'
+          ease: 'power3.out'
+        })
+        .to(startBtn, {
+          scale: 0.92,
+          duration: 0.08,
+          ease: 'power2.in'
         }, '-=0.5')
+        .to(startBtn, {
+          scale: 1.08,
+          duration: 0.16,
+          ease: 'back.out(2)'
+        }, '-=0.08')
+        .to(startBtn, {
+          scale: 1,
+          duration: 0.14,
+          ease: 'power2.out'
+        }, '-=0.14')
         .to(startGate, {
           autoAlpha: 0,
           scale: 1.04,
@@ -152,7 +177,7 @@ export function setupVideoIntro(onIntroComplete, onUserStart) {
           onComplete: () => {
             startGate.style.display = 'none';
           }
-        }, '-=0.4');
+        }, '-=0.3');
 
       try {
         video.volume = 1;
