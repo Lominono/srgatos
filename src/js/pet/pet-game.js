@@ -30,6 +30,13 @@ export function createPetGame(containerEl, petState, onExit, onOpenFlappy, onOpe
           <span class="pet-level-badge" id="pet-level-badge">Nv. ${petState.state.level}</span>
         </div>
 
+        <!-- Daily Missions Button -->
+        <button class="pet-missions-pill" id="pet-missions-btn" aria-label="Misiones Diarias">
+          <span class="missions-icon">🎯</span>
+          <span class="missions-label">Misiones</span>
+          <span class="missions-badge-dot" id="pet-missions-badge" style="display: none;"></span>
+        </button>
+
         <!-- Music Button (Hao Xiang Ni) -->
         <button class="pet-music-pill" id="pet-music-btn" aria-label="Música">
           <div class="mini-eq" id="pet-music-eq">
@@ -123,6 +130,31 @@ export function createPetGame(containerEl, petState, onExit, onOpenFlappy, onOpe
           </div>
         </div>
       </footer>
+
+      <!-- Daily Missions Sheet Modal -->
+      <div class="pet-missions-sheet-overlay" id="pet-missions-sheet" style="display: none;">
+        <div class="missions-sheet-backdrop" id="missions-sheet-backdrop"></div>
+        <div class="missions-sheet-card">
+          <div class="missions-sheet-handle"></div>
+          <div class="missions-sheet-header">
+            <div class="missions-title-col">
+              <span class="missions-sheet-tag">RECOMPENSAS DIARIAS</span>
+              <h3 class="missions-sheet-title">Misiones de Hoy</h3>
+            </div>
+            <div class="missions-streak-pill" id="missions-streak-pill">
+              <span class="streak-fire">🔥</span>
+              <span class="streak-text" id="missions-streak-text">Racha: 1 día</span>
+            </div>
+            <button class="missions-close-btn" id="btn-close-missions" aria-label="Cerrar misiones">✕</button>
+          </div>
+
+          <!-- Missions List -->
+          <div class="missions-list" id="missions-list-container"></div>
+
+          <!-- Daily Completion Chest Bonus -->
+          <div class="missions-bonus-box" id="missions-bonus-box"></div>
+        </div>
+      </div>
     </div>
   `;
 
@@ -142,6 +174,16 @@ export function createPetGame(containerEl, petState, onExit, onOpenFlappy, onOpe
   const meowlImg = containerEl.querySelector('#pet-meowl-img');
   const dirtOverlay = containerEl.querySelector('#pet-dirt-overlay');
   const interactiveDock = containerEl.querySelector('#pet-interactive-dock');
+
+  // Daily Missions Selectors
+  const missionsBtn = containerEl.querySelector('#pet-missions-btn');
+  const missionsBadge = containerEl.querySelector('#pet-missions-badge');
+  const missionsSheet = containerEl.querySelector('#pet-missions-sheet');
+  const missionsBackdrop = containerEl.querySelector('#missions-sheet-backdrop');
+  const missionsCloseBtn = containerEl.querySelector('#btn-close-missions');
+  const missionsListContainer = containerEl.querySelector('#missions-list-container');
+  const missionsBonusBox = containerEl.querySelector('#missions-bonus-box');
+  const missionsStreakText = containerEl.querySelector('#missions-streak-text');
 
   // Vitals elements
   const fillHunger = containerEl.querySelector('#vital-fill-hunger');
@@ -337,7 +379,174 @@ export function createPetGame(containerEl, petState, onExit, onOpenFlappy, onOpe
     if (!isSleeping && !actionTimeout) {
       meowlImg.src = getBaseIdleImage();
     }
+
+    updateMissionsBadge();
   }
+
+  // Daily Missions Sheet Controller
+  function updateMissionsBadge() {
+    if (!missionsBadge || !petState) return;
+    const count = petState.getUnclaimedMissionsCount();
+    if (count > 0) {
+      missionsBadge.style.display = 'block';
+    } else {
+      missionsBadge.style.display = 'none';
+    }
+  }
+
+  function renderMissionsSheetContent() {
+    if (!petState || !missionsListContainer) return;
+    const view = petState.getDailyMissionsView();
+    if (missionsStreakText) {
+      missionsStreakText.textContent = `Racha: ${view.streak} ${view.streak === 1 ? 'día' : 'días'}`;
+    }
+
+    missionsListContainer.innerHTML = '';
+    view.missions.forEach(mission => {
+      const card = document.createElement('div');
+      card.className = `mission-item-card ${mission.claimed ? 'claimed' : mission.isCompleted ? 'completed' : ''}`;
+
+      const pct = Math.min(100, Math.round((mission.current / mission.target) * 100));
+
+      card.innerHTML = `
+        <div class="mission-icon-box">${mission.icon}</div>
+        <div class="mission-info-box">
+          <div class="mission-title-row">
+            <span class="mission-title">${mission.title}</span>
+            <span class="mission-reward">+${mission.rewardCoins} 🪙</span>
+          </div>
+          <span class="mission-desc">${mission.desc}</span>
+          <div class="mission-prog-track">
+            <div class="mission-prog-fill" style="width: ${pct}%"></div>
+          </div>
+        </div>
+        <div class="mission-action-col">
+          ${
+            mission.claimed
+              ? '<span class="mission-claimed-pill">✓ Hecho</span>'
+              : mission.canClaim
+              ? `<button class="mission-claim-btn" data-mission-id="${mission.id}">Reclamar</button>`
+              : `<span class="mission-prog-counter">${mission.current}/${mission.target}</span>`
+          }
+        </div>
+      `;
+
+      const claimBtn = card.querySelector('.mission-claim-btn');
+      if (claimBtn) {
+        claimBtn.addEventListener('click', () => {
+          sfx.coin();
+          sfx.levelUp();
+          const res = petState.claimMission(mission.id);
+          if (res && res.success) {
+            confetti({ particleCount: 30, spread: 55, origin: { y: 0.6 } });
+            say(`¡Misión cumplida! +${res.rewardCoins} 🪙`, 1800);
+            renderMissionsSheetContent();
+            updateMissionsBadge();
+          }
+        });
+      }
+
+      missionsListContainer.appendChild(card);
+    });
+
+    // Render Daily Bonus Chest
+    if (!missionsBonusBox) return;
+    if (view.bonusClaimed) {
+      missionsBonusBox.innerHTML = `
+        <div class="missions-chest-card claimed">
+          <span class="chest-emoji">🎁</span>
+          <div class="chest-text">
+            <strong>¡Cofre de hoy completado!</strong>
+            <small>Vuelve mañana para continuar tu racha</small>
+          </div>
+          <span class="chest-status-pill">✓ Reclamado</span>
+        </div>
+      `;
+    } else if (view.canClaimBonus) {
+      missionsBonusBox.innerHTML = `
+        <div class="missions-chest-card ready">
+          <span class="chest-emoji">🎁</span>
+          <div class="chest-text">
+            <strong>¡Todas las misiones listas!</strong>
+            <small>Abre tu cofre diario especial</small>
+          </div>
+          <button class="chest-claim-btn" id="btn-claim-chest">Abrir (+25 🪙)</button>
+        </div>
+      `;
+      const chestBtn = missionsBonusBox.querySelector('#btn-claim-chest');
+      if (chestBtn) {
+        chestBtn.addEventListener('click', () => {
+          sfx.coin();
+          sfx.levelUp();
+          const res = petState.claimDailyBonus();
+          if (res && res.success) {
+            confetti({ particleCount: 60, spread: 80, origin: { y: 0.5 } });
+            say('¡Cofre diario abierto! 🎉 +25 monedas', 2500);
+            renderMissionsSheetContent();
+            updateMissionsBadge();
+          }
+        });
+      }
+    } else {
+      missionsBonusBox.innerHTML = `
+        <div class="missions-chest-card locked">
+          <span class="chest-emoji">🔒</span>
+          <div class="chest-text">
+            <strong>Cofre Bonus Diario (+25 🪙)</strong>
+            <small>Completa las 4 misiones de hoy para abrirlo</small>
+          </div>
+        </div>
+      `;
+    }
+  }
+
+  function openMissionsSheet() {
+    sfx.click();
+    renderMissionsSheetContent();
+    if (!missionsSheet) return;
+    missionsSheet.style.display = 'flex';
+    const cardEl = missionsSheet.querySelector('.missions-sheet-card');
+    if (cardEl) {
+      gsap.fromTo(cardEl,
+        { y: 80, autoAlpha: 0 },
+        { y: 0, autoAlpha: 1, duration: 0.35, ease: 'power3.out' }
+      );
+    }
+    if (missionsBackdrop) {
+      gsap.fromTo(missionsBackdrop,
+        { autoAlpha: 0 },
+        { autoAlpha: 1, duration: 0.25 }
+      );
+    }
+  }
+
+  function closeMissionsSheet() {
+    if (!missionsSheet) return;
+    const cardEl = missionsSheet.querySelector('.missions-sheet-card');
+    if (cardEl) {
+      gsap.to(cardEl, {
+        y: 80,
+        autoAlpha: 0,
+        duration: 0.22,
+        ease: 'power2.in'
+      });
+    }
+    if (missionsBackdrop) {
+      gsap.to(missionsBackdrop, {
+        autoAlpha: 0,
+        duration: 0.2,
+        onComplete: () => {
+          missionsSheet.style.display = 'none';
+        }
+      });
+    } else {
+      missionsSheet.style.display = 'none';
+    }
+  }
+
+  if (missionsBtn) missionsBtn.addEventListener('click', openMissionsSheet);
+  if (missionsCloseBtn) missionsCloseBtn.addEventListener('click', closeMissionsSheet);
+  if (missionsBackdrop) missionsBackdrop.addEventListener('click', closeMissionsSheet);
 
   // Petting interaction on Meowl (alternates cute blep and purr)
   let petPressTime = 0;
@@ -782,6 +991,7 @@ export function createPetGame(containerEl, petState, onExit, onOpenFlappy, onOpe
       launchGameWithCheck(() => {
         if (typeof onOpenFlappy === 'function') {
           onOpenFlappy((earnedScore) => {
+            petState.incrementMissionProgress('game', 1);
             if (earnedScore > 0) {
               const coinsEarned = earnedScore * 2;
               petState.addCoins(coinsEarned);
@@ -798,6 +1008,7 @@ export function createPetGame(containerEl, petState, onExit, onOpenFlappy, onOpe
       launchGameWithCheck(() => {
         if (typeof onOpenCatcher === 'function') {
           onOpenCatcher((earnedScore, earnedCoins) => {
+            petState.incrementMissionProgress('game', 1);
             if (earnedCoins > 0) {
               petState.addCoins(earnedCoins);
               petState.addXP(earnedScore);
@@ -813,6 +1024,7 @@ export function createPetGame(containerEl, petState, onExit, onOpenFlappy, onOpe
       launchGameWithCheck(() => {
         if (typeof onOpenJump === 'function') {
           onOpenJump((earnedScore, earnedCoins) => {
+            petState.incrementMissionProgress('game', 1);
             if (earnedCoins > 0) {
               petState.addCoins(earnedCoins);
               petState.addXP(Math.round(earnedScore / 2));

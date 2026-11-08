@@ -5,6 +5,55 @@
 
 const STORAGE_PREFIX = 'srgatos_pet_';
 
+export const DAILY_MISSIONS_DEF = [
+  {
+    id: 'feed',
+    title: 'Alimentar a Meowl',
+    desc: 'Dale de comer 3 veces delicias ricas',
+    icon: '🐟',
+    target: 3,
+    rewardCoins: 12,
+    rewardXP: 15
+  },
+  {
+    id: 'wash',
+    title: 'Baño Reluciente',
+    desc: 'Límpialo con esponja o ducha',
+    icon: '🧼',
+    target: 1,
+    rewardCoins: 10,
+    rewardXP: 12
+  },
+  {
+    id: 'game',
+    title: 'Sesión de Juegos',
+    desc: 'Juega 1 partida a Flappy, Catcher o Salto',
+    icon: '🎮',
+    target: 1,
+    rewardCoins: 15,
+    rewardXP: 20
+  },
+  {
+    id: 'pet',
+    title: 'Mimos y Ronroneo',
+    desc: 'Acaricia a Meowl 5 veces',
+    icon: '💖',
+    target: 5,
+    rewardCoins: 10,
+    rewardXP: 10
+  }
+];
+
+function getDefaultDailyMissions() {
+  const today = new Date().toISOString().slice(0, 10);
+  return {
+    date: today,
+    streak: 1,
+    bonusClaimed: false,
+    missions: DAILY_MISSIONS_DEF.map(m => ({ id: m.id, current: 0, claimed: false }))
+  };
+}
+
 function getDefaultState(profile) {
   const isThiago = profile === 'thiago';
 
@@ -24,6 +73,7 @@ function getDefaultState(profile) {
     activeOutfit: 'skin_default',
     unlockedOutfits: ['skin_default'],
     isSleeping: false,
+    dailyMissions: getDefaultDailyMissions(),
     history: [
       { id: 1, text: isThiago ? 'Thiago adoptó a Meowl' : 'Saray adoptó a Meowl', time: Date.now() }
     ],
@@ -38,6 +88,7 @@ export class PetStateManager {
     this.autoDecayInterval = null;
     this.offlineSummary = null;
     this.state = this.load();
+    this.checkDailyMissionsReset();
     this.processOfflineProgression();
     this.startAutoDecay();
   }
@@ -58,6 +109,7 @@ export class PetStateManager {
             ...getDefaultState(this.profile).stats,
             ...(parsed.stats || {})
           },
+          dailyMissions: parsed.dailyMissions || getDefaultDailyMissions(),
           unlockedOutfits: Array.isArray(parsed.unlockedOutfits)
             ? parsed.unlockedOutfits
             : ['skin_default']
@@ -67,6 +119,151 @@ export class PetStateManager {
       console.warn('Error loading pet state:', e);
     }
     return getDefaultState(this.profile);
+  }
+
+  checkDailyMissionsReset() {
+    if (!this.state) return;
+    const today = new Date().toISOString().slice(0, 10);
+    if (!this.state.dailyMissions || !this.state.dailyMissions.date) {
+      this.state.dailyMissions = getDefaultDailyMissions();
+      return;
+    }
+
+    if (this.state.dailyMissions.date !== today) {
+      const lastDate = new Date(this.state.dailyMissions.date);
+      const currDate = new Date(today);
+      const diffTime = Math.abs(currDate - lastDate);
+      const diffDays = Math.round(diffTime / (1000 * 60 * 60 * 24));
+
+      let currentStreak = this.state.dailyMissions.streak || 1;
+      if (diffDays === 1) {
+        currentStreak += 1;
+      } else if (diffDays > 1) {
+        currentStreak = 1;
+      }
+
+      this.state.dailyMissions = {
+        date: today,
+        streak: currentStreak,
+        bonusClaimed: false,
+        missions: DAILY_MISSIONS_DEF.map(m => ({ id: m.id, current: 0, claimed: false }))
+      };
+      this.addHistory(`Nuevo día: Racha de ${currentStreak} días`);
+      this.save();
+    }
+  }
+
+  incrementMissionProgress(missionId, amount = 1) {
+    this.checkDailyMissionsReset();
+    if (!this.state.dailyMissions || !Array.isArray(this.state.dailyMissions.missions)) {
+      this.state.dailyMissions = getDefaultDailyMissions();
+    }
+
+    const mission = this.state.dailyMissions.missions.find(m => m.id === missionId);
+    const def = DAILY_MISSIONS_DEF.find(d => d.id === missionId);
+    if (!mission || !def) return;
+
+    if (!mission.claimed && mission.current < def.target) {
+      mission.current = Math.min(def.target, mission.current + amount);
+      this.save();
+    }
+  }
+
+  claimMission(missionId) {
+    this.checkDailyMissionsReset();
+    const mission = this.state.dailyMissions.missions.find(m => m.id === missionId);
+    const def = DAILY_MISSIONS_DEF.find(d => d.id === missionId);
+    if (!mission || !def) return { success: false, reason: 'Misión no encontrada' };
+
+    if (mission.claimed) {
+      return { success: false, reason: 'Ya reclamada' };
+    }
+
+    if (mission.current < def.target) {
+      return { success: false, reason: 'Misión aún no completada' };
+    }
+
+    mission.claimed = true;
+    this.addCoins(def.rewardCoins);
+    const xpResult = this.addXP(def.rewardXP);
+    this.addHistory(`Completó misión: ${def.title} (+${def.rewardCoins} 🪙)`);
+    this.save();
+
+    return {
+      success: true,
+      rewardCoins: def.rewardCoins,
+      rewardXP: def.rewardXP,
+      title: def.title,
+      ...xpResult
+    };
+  }
+
+  claimDailyBonus() {
+    this.checkDailyMissionsReset();
+    if (this.state.dailyMissions.bonusClaimed) {
+      return { success: false, reason: 'Cofre ya reclamado hoy' };
+    }
+
+    const allClaimed = this.state.dailyMissions.missions.every(m => m.claimed);
+    if (!allClaimed) {
+      return { success: false, reason: 'Debes completar y reclamar todas las misiones primero' };
+    }
+
+    this.state.dailyMissions.bonusClaimed = true;
+    const bonusCoins = 25;
+    const bonusXP = 30;
+    this.addCoins(bonusCoins);
+    const xpResult = this.addXP(bonusXP);
+    this.addHistory(`¡Cofre Diario Completo reclamado! (+${bonusCoins} 🪙)`);
+    this.save();
+
+    return {
+      success: true,
+      rewardCoins: bonusCoins,
+      rewardXP: bonusXP,
+      ...xpResult
+    };
+  }
+
+  getUnclaimedMissionsCount() {
+    if (!this.state || !this.state.dailyMissions) return 0;
+    let count = 0;
+    for (const m of this.state.dailyMissions.missions) {
+      const def = DAILY_MISSIONS_DEF.find(d => d.id === m.id);
+      if (def && !m.claimed && m.current >= def.target) {
+        count++;
+      }
+    }
+    const allClaimed = this.state.dailyMissions.missions.every(m => m.claimed);
+    if (allClaimed && !this.state.dailyMissions.bonusClaimed) {
+      count++;
+    }
+    return count;
+  }
+
+  getDailyMissionsView() {
+    this.checkDailyMissionsReset();
+    const dm = this.state.dailyMissions || getDefaultDailyMissions();
+    const list = DAILY_MISSIONS_DEF.map(def => {
+      const item = dm.missions.find(m => m.id === def.id) || { current: 0, claimed: false };
+      return {
+        ...def,
+        current: item.current,
+        claimed: item.claimed,
+        isCompleted: item.current >= def.target,
+        canClaim: !item.claimed && item.current >= def.target
+      };
+    });
+
+    const allClaimed = list.every(m => m.claimed);
+    return {
+      date: dm.date,
+      streak: dm.streak || 1,
+      bonusClaimed: dm.bonusClaimed || false,
+      allClaimed,
+      canClaimBonus: allClaimed && !dm.bonusClaimed,
+      missions: list
+    };
   }
 
   save() {
@@ -245,6 +442,7 @@ export class PetStateManager {
 
     const xpResult = this.addXP(food.xp);
     this.addHistory(`Comió ${food.name}`);
+    this.incrementMissionProgress('feed', 1);
     this.save();
 
     return { success: true, ...xpResult };
@@ -298,6 +496,7 @@ export class PetStateManager {
     this.addCoins(1);
     const xpResult = this.addXP(8);
     this.addHistory('Baño limpio');
+    this.incrementMissionProgress('wash', 1);
     this.save();
     return { success: true, ...xpResult };
   }
@@ -315,6 +514,7 @@ export class PetStateManager {
     this.state.stats.fun = Math.min(100, this.state.stats.fun + 6);
     this.state.stats.energy = Math.max(10, this.state.stats.energy - 1);
     const xpResult = this.addXP(3);
+    this.incrementMissionProgress('pet', 1);
     this.save();
     return { success: true, ...xpResult };
   }

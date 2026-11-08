@@ -10,6 +10,7 @@ import { setupAmbientCanvas } from './ambient-canvas.js';
 import { setupExperienceHub } from './hub.js';
 import { PetStateManager } from './pet/pet-state.js';
 import { createPetGame } from './pet/pet-game.js';
+import { setupIOSPWA } from './ios-pwa.js';
 
 document.addEventListener('DOMContentLoaded', () => {
   let meowlController = null;
@@ -42,6 +43,9 @@ document.addEventListener('DOMContentLoaded', () => {
   flappyController = setupFlappyMeowl();
   catcherController = setupMeowlCatcher();
   jumpController = setupMeowlJump();
+
+  // Initialize iOS PWA features & install sheet
+  setupIOSPWA();
 
   // Lazy-load Three.js for 360 viewer only when requested
   if (open360Btn) {

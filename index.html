@@ -3,8 +3,15 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-  <meta name="theme-color" content="#08080a">
+  <meta name="theme-color" content="#000000">
   <title>SARAY</title>
+  
+  <!-- iOS PWA Fullscreen & Web App Capabilities -->
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Saray">
+  <link rel="apple-touch-icon" href="/images/gato.png">
+  <link rel="manifest" href="/manifest.webmanifest">
   <link rel="icon" type="image/png" href="/images/gato.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -92,6 +99,13 @@
             <path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z"/>
           </svg>
           <span>Ver música y experiencia 360°</span>
+        </button>
+        <button class="hub-link-btn hub-btn-install" id="hub-btn-install" style="margin-top: 6px;">
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="5" y="2" width="14" height="20" rx="2" ry="2"></rect>
+            <line x1="12" y1="18" x2="12.01" y2="18"></line>
+          </svg>
+          <span>Instalar en iPhone</span>
         </button>
       </footer>
     </div>
@@ -328,6 +342,61 @@
         <button class="hud-secondary-btn" id="btn-toggle-gyro">Giroscopio</button>
         <button class="hud-secondary-btn" id="btn-play-360">Pausar</button>
       </div>
+    </div>
+  </div>
+
+  <!-- iOS PWA Install Guide Modal Sheet -->
+  <div id="ios-install-modal" class="ios-install-modal" style="display: none;">
+    <div class="ios-install-backdrop" id="ios-install-backdrop"></div>
+    <div class="ios-install-sheet">
+      <div class="ios-sheet-handle"></div>
+      <div class="ios-sheet-header">
+        <div class="ios-sheet-app-icon">
+          <img src="/images/gato.png" alt="Saray App" />
+        </div>
+        <div class="ios-sheet-title-box">
+          <h3 class="ios-sheet-title">Instalar en tu iPhone</h3>
+          <p class="ios-sheet-sub">Disfruta de Meowl a pantalla completa sin la barra de Safari</p>
+        </div>
+        <button id="btn-close-ios-install" class="ios-sheet-close-btn" aria-label="Cerrar">✕</button>
+      </div>
+
+      <div class="ios-sheet-steps">
+        <div class="ios-step-row">
+          <div class="ios-step-badge">1</div>
+          <div class="ios-step-info">
+            <span>Toca el botón <strong>Compartir</strong> en la barra inferior de Safari</span>
+            <div class="ios-step-action-pill">
+              <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+                <path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"></path>
+                <polyline points="16 6 12 2 8 6"></polyline>
+                <line x1="12" y1="2" x2="12" y2="15"></line>
+              </svg>
+              <span>Compartir</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="ios-step-row">
+          <div class="ios-step-badge">2</div>
+          <div class="ios-step-info">
+            <span>Baja un poco y selecciona <strong>"Añadir a pantalla de inicio"</strong></span>
+            <div class="ios-step-action-pill">
+              <span style="font-size: 15px;">➕</span>
+              <span>Añadir a pantalla de inicio</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="ios-step-row">
+          <div class="ios-step-badge">3</div>
+          <div class="ios-step-info">
+            <span>Pulsa <strong>"Añadir"</strong> en la esquina superior derecha</span>
+          </div>
+        </div>
+      </div>
+
+      <button id="btn-dismiss-ios-install" class="ios-sheet-confirm-btn">¡Listo, entendido!</button>
     </div>
   </div>
 

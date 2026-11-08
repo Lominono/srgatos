@@ -1675,7 +1675,7 @@ body {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 10px 14px;
+  padding: max(10px, env(safe-area-inset-top)) 14px 10px;
   gap: 8px;
   z-index: 20;
   flex-wrap: wrap;
@@ -2346,7 +2346,7 @@ body {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   gap: 8px;
-  padding: 10px 14px 14px;
+  padding: 10px 14px max(14px, env(safe-area-inset-bottom));
   background: rgba(18, 18, 22, 0.7);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
@@ -2437,4 +2437,555 @@ body {
 .app-nav-btn:active {
   transform: scale(0.95);
 }
+
+/* ==========================================================================
+   DAILY MISSIONS (APPLE DESIGN SYSTEM)
+   ========================================================================== */
+.pet-missions-pill {
+  position: relative;
+  background: rgba(255, 255, 255, 0.08);
+  border: var(--glass-border-subtle);
+  color: #ffffff;
+  padding: 6px 12px;
+  border-radius: var(--radius-pill);
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  cursor: pointer;
+  touch-action: manipulation;
+  min-height: 38px;
+  transition: transform 120ms ease, background 120ms ease;
+}
+
+.pet-missions-pill:active {
+  transform: scale(0.94);
+  background: rgba(255, 255, 255, 0.16);
+}
+
+.missions-icon {
+  font-size: 15px;
+}
+
+.missions-label {
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+
+.missions-badge-dot {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: #FF375F;
+  box-shadow: 0 0 8px #FF375F;
+  animation: badgePulse 1.8s infinite ease-in-out;
+}
+
+@keyframes badgePulse {
+  0%, 100% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.3); opacity: 0.8; }
+}
+
+/* Missions Bottom Sheet Overlay */
+.pet-missions-sheet-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 3500;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+}
+
+.missions-sheet-backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+}
+
+.missions-sheet-card {
+  position: relative;
+  width: 100%;
+  max-width: 480px;
+  max-height: 85vh;
+  max-height: 85dvh;
+  background: #15151a;
+  border-top: 0.5px solid rgba(255, 255, 255, 0.18);
+  border-radius: 28px 28px 0 0;
+  box-shadow: 0 -10px 40px rgba(0, 0, 0, 0.8);
+  display: flex;
+  flex-direction: column;
+  padding: 12px 18px max(24px, env(safe-area-inset-bottom));
+  gap: 14px;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+.missions-sheet-handle {
+  width: 36px;
+  height: 4.5px;
+  border-radius: var(--radius-pill);
+  background: rgba(255, 255, 255, 0.25);
+  margin: 0 auto;
+}
+
+.missions-sheet-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.missions-title-col {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.missions-sheet-tag {
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  color: #BF5AF2;
+}
+
+.missions-sheet-title {
+  font-family: var(--font-display);
+  font-size: 19px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: #ffffff;
+}
+
+.missions-streak-pill {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  background: rgba(255, 149, 0, 0.14);
+  border: 0.5px solid rgba(255, 149, 0, 0.4);
+  border-radius: var(--radius-pill);
+  padding: 5px 10px;
+  font-size: 11.5px;
+  font-weight: 700;
+  color: #FF9F0A;
+}
+
+.missions-close-btn {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.1);
+  border: 0.5px solid rgba(255, 255, 255, 0.15);
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  touch-action: manipulation;
+  font-size: 12px;
+}
+
+.missions-close-btn:active {
+  transform: scale(0.92);
+}
+
+/* Missions List */
+.missions-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.mission-item-card {
+  background: rgba(255, 255, 255, 0.05);
+  border: var(--glass-border-subtle);
+  border-radius: var(--radius-lg);
+  padding: 12px 14px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  transition: all 180ms ease;
+}
+
+.mission-item-card.completed {
+  border-color: rgba(48, 209, 88, 0.4);
+  background: rgba(48, 209, 88, 0.07);
+}
+
+.mission-item-card.claimed {
+  opacity: 0.65;
+}
+
+.mission-icon-box {
+  width: 40px;
+  height: 40px;
+  border-radius: var(--radius-md);
+  background: rgba(255, 255, 255, 0.08);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+  flex-shrink: 0;
+}
+
+.mission-info-box {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+
+.mission-title-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+}
+
+.mission-title {
+  font-size: 13.5px;
+  font-weight: 700;
+  color: #ffffff;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.mission-reward {
+  font-size: 11.5px;
+  font-weight: 700;
+  color: #FFD60A;
+  white-space: nowrap;
+}
+
+.mission-desc {
+  font-size: 11px;
+  color: var(--color-label-secondary);
+  line-height: 1.3;
+}
+
+.mission-prog-track {
+  width: 100%;
+  height: 5px;
+  border-radius: var(--radius-pill);
+  background: rgba(255, 255, 255, 0.1);
+  overflow: hidden;
+  margin-top: 3px;
+}
+
+.mission-prog-fill {
+  height: 100%;
+  border-radius: var(--radius-pill);
+  background: linear-gradient(90deg, #30D158, #34C759);
+  transition: width 300ms ease;
+}
+
+.mission-action-col {
+  flex-shrink: 0;
+}
+
+.mission-prog-counter {
+  font-size: 11.5px;
+  font-weight: 700;
+  color: var(--color-label-tertiary);
+  padding: 4px 8px;
+}
+
+.mission-claim-btn {
+  background: linear-gradient(135deg, #FFD60A 0%, #FF9F0A 100%);
+  color: #000000;
+  border: none;
+  border-radius: var(--radius-pill);
+  padding: 7px 14px;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+  cursor: pointer;
+  touch-action: manipulation;
+  box-shadow: 0 4px 14px rgba(255, 214, 10, 0.35);
+  animation: claimPulse 1.6s infinite ease-in-out;
+}
+
+@keyframes claimPulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.04); }
+}
+
+.mission-claim-btn:active {
+  transform: scale(0.93) !important;
+}
+
+.mission-claimed-pill {
+  font-size: 11px;
+  font-weight: 700;
+  color: #30D158;
+  background: rgba(48, 209, 88, 0.12);
+  border-radius: var(--radius-pill);
+  padding: 4px 10px;
+}
+
+/* Daily Chest Bonus Box */
+.missions-bonus-box {
+  margin-top: 4px;
+}
+
+.missions-chest-card {
+  border-radius: var(--radius-lg);
+  padding: 13px 16px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.missions-chest-card.locked {
+  background: rgba(255, 255, 255, 0.04);
+  border: var(--glass-border-subtle);
+  color: var(--color-label-secondary);
+}
+
+.missions-chest-card.ready {
+  background: linear-gradient(135deg, rgba(191, 90, 242, 0.18) 0%, rgba(255, 214, 10, 0.12) 100%);
+  border: 1px solid rgba(255, 214, 10, 0.5);
+  box-shadow: 0 6px 20px rgba(191, 90, 242, 0.25);
+}
+
+.missions-chest-card.claimed {
+  background: rgba(48, 209, 88, 0.08);
+  border: 0.5px solid rgba(48, 209, 88, 0.3);
+}
+
+.chest-emoji {
+  font-size: 26px;
+}
+
+.chest-text {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.chest-text strong {
+  font-size: 13.5px;
+  color: #ffffff;
+}
+
+.chest-text small {
+  font-size: 11px;
+  color: var(--color-label-secondary);
+}
+
+.chest-claim-btn {
+  background: linear-gradient(135deg, #FFD60A, #FF9F0A);
+  color: #000000;
+  border: none;
+  padding: 9px 16px;
+  border-radius: var(--radius-pill);
+  font-size: 12.5px;
+  font-weight: 800;
+  cursor: pointer;
+  touch-action: manipulation;
+  box-shadow: 0 4px 16px rgba(255, 214, 10, 0.4);
+  animation: claimPulse 1.5s infinite ease-in-out;
+}
+
+.chest-claim-btn:active {
+  transform: scale(0.94);
+}
+
+.chest-status-pill {
+  font-size: 11px;
+  font-weight: 700;
+  color: #30D158;
+  padding: 4px 10px;
+  background: rgba(48, 209, 88, 0.12);
+  border-radius: var(--radius-pill);
+}
+
+/* ==========================================================================
+   IOS PWA INSTALL SHEET (APPLE HIG)
+   ========================================================================== */
+.ios-install-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 3600;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+}
+
+.ios-install-backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.75);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+}
+
+.ios-install-sheet {
+  position: relative;
+  width: 100%;
+  max-width: 440px;
+  background: #17171d;
+  border-top: 0.5px solid rgba(255, 255, 255, 0.2);
+  border-radius: 28px 28px 0 0;
+  padding: 12px 20px max(28px, env(safe-area-inset-bottom));
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  box-shadow: 0 -12px 40px rgba(0, 0, 0, 0.85);
+}
+
+.ios-sheet-handle {
+  width: 36px;
+  height: 4.5px;
+  border-radius: var(--radius-pill);
+  background: rgba(255, 255, 255, 0.25);
+  margin: 0 auto;
+}
+
+.ios-sheet-header {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.ios-sheet-app-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.4);
+  flex-shrink: 0;
+  background: #000000;
+}
+
+.ios-sheet-app-icon img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.ios-sheet-title-box {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.ios-sheet-title {
+  font-family: var(--font-display);
+  font-size: 17px;
+  font-weight: 700;
+  color: #ffffff;
+  letter-spacing: -0.01em;
+}
+
+.ios-sheet-sub {
+  font-size: 11.5px;
+  color: var(--color-label-secondary);
+  line-height: 1.3;
+}
+
+.ios-sheet-close-btn {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.1);
+  border: none;
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  touch-action: manipulation;
+  font-size: 11px;
+}
+
+.ios-sheet-close-btn:active {
+  transform: scale(0.92);
+}
+
+.ios-sheet-steps {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  background: rgba(255, 255, 255, 0.04);
+  border: var(--glass-border-subtle);
+  border-radius: var(--radius-lg);
+  padding: 14px 16px;
+}
+
+.ios-step-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.ios-step-badge {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: #0A84FF;
+  color: #ffffff;
+  font-size: 12px;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+.ios-step-info {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.9);
+  line-height: 1.35;
+}
+
+.ios-step-action-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(255, 255, 255, 0.1);
+  border: 0.5px solid rgba(255, 255, 255, 0.18);
+  border-radius: var(--radius-pill);
+  padding: 4px 10px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #64D2FF;
+  width: fit-content;
+}
+
+.ios-sheet-confirm-btn {
+  background: #0A84FF;
+  color: #ffffff;
+  border: none;
+  border-radius: var(--radius-md);
+  padding: 13px;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  touch-action: manipulation;
+  transition: opacity 120ms ease;
+}
+
+.ios-sheet-confirm-btn:active {
+  opacity: 0.85;
+}
+
+/* Standalone adjustments for iOS */
+body.is-standalone {
+  padding-top: env(safe-area-inset-top);
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
 
